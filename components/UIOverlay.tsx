@@ -16,13 +16,14 @@ import {
   Eye,
   Share2,
   MoreHorizontal,
-  Navigation,
+  HelpCircle,
   Menu
 } from "lucide-react";
 import { format } from "date-fns";
 import type { Flight } from "@/lib/types";
 import { flightKey } from "@/lib/types";
 import { searchFlights } from "@/lib/api";
+import { FaqModal } from "@/components/FaqModal";
 
 type Props = {
   flights: Flight[];
@@ -48,6 +49,10 @@ function haversineDistanceKm(lat1: number, lon1: number, lat2: number, lon2: num
 }
 
 export function UIOverlay({ flights, selectedFlight, onSelectFlight, extraHeaderRight, onToggleList }: Props) {
+  // Shared by the header FAQ button and the flight panel's FAQ action, so the
+  // answers are reachable whether or not a flight is currently selected.
+  const [faqOpen, setFaqOpen] = useState(false);
+
   return (
     <div className="absolute inset-0 pointer-events-none flex flex-col font-sans">
       {/* APILayer-styled header top bar */}
@@ -92,6 +97,15 @@ export function UIOverlay({ flights, selectedFlight, onSelectFlight, extraHeader
         <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
           <FlightSearch flights={flights} onSelectFlight={onSelectFlight} />
           {extraHeaderRight}
+          <button
+            onClick={() => setFaqOpen(true)}
+            title="Frequently asked questions"
+            aria-label="Frequently asked questions"
+            className="flex items-center gap-1.5 text-gray-300 hover:text-white border border-[#2c2c2e] hover:border-[#3D7BFF]/60 rounded px-2 sm:px-2.5 py-1.5 text-[11px] sm:text-xs font-semibold transition cursor-pointer whitespace-nowrap"
+          >
+            <HelpCircle className="w-4 h-4 shrink-0" />
+            <span className="hidden sm:inline">FAQ</span>
+          </button>
           <a
             href="https://app.apilayer.com/signup/aviationstack/?utm_source=aerostack_devtools&utm_medium=internal&utm_campaign=featured_section"
             target="_blank"
@@ -106,9 +120,15 @@ export function UIOverlay({ flights, selectedFlight, onSelectFlight, extraHeader
       {/* Slide-out detail flight panel */}
       <AnimatePresence>
         {selectedFlight && (
-          <FlightPanel flight={selectedFlight} onClose={() => onSelectFlight(null)} />
+          <FlightPanel
+            flight={selectedFlight}
+            onClose={() => onSelectFlight(null)}
+            onOpenFaq={() => setFaqOpen(true)}
+          />
         )}
       </AnimatePresence>
+
+      <FaqModal open={faqOpen} onClose={() => setFaqOpen(false)} />
 
       <style jsx global>{`
         @keyframes spin {
@@ -303,7 +323,15 @@ function FlightSearch({
   );
 }
 
-function FlightPanel({ flight, onClose }: { flight: Flight; onClose: () => void }) {
+function FlightPanel({
+  flight,
+  onClose,
+  onOpenFaq,
+}: {
+  flight: Flight;
+  onClose: () => void;
+  onOpenFaq: () => void;
+}) {
   const [starred, setStarred] = useState(false);
   
   // Manage expandable accordions
@@ -699,9 +727,12 @@ function FlightPanel({ flight, onClose }: { flight: Flight; onClose: () => void 
 
       {/* 5. Replicated Sticky Bottom Button Action Bar */}
       <div className="bg-[#111112] border-t border-[#2c2c2e] p-2 flex justify-around items-center text-[10px] text-gray-400 font-sans z-30 select-none">
-        <button className="flex flex-col items-center gap-1 hover:text-white cursor-pointer text-gray-300">
-          <Navigation className="w-4 h-4" />
-          <span>3D view</span>
+        <button
+          onClick={onOpenFaq}
+          className="flex flex-col items-center gap-1 hover:text-white cursor-pointer text-gray-300"
+        >
+          <HelpCircle className="w-4 h-4" />
+          <span>FAQ</span>
         </button>
 
         <button className="flex flex-col items-center gap-1 hover:text-white cursor-pointer text-gray-300">
