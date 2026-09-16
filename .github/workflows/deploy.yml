@@ -79,17 +79,17 @@ jobs:
           aws-region: ${{ vars.AWS_REGION }}
 
       - name: Debug OIDC token claims
-          run: |
-            IDTOKEN=$(curl -sSL -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-              "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r '.value')
+        run: |
+          IDTOKEN=$(curl -sSL -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r '.value')
 
-            echo "$IDTOKEN" | cut -d. -f2 | base64 -d 2>/dev/null | jq .
+          echo "$IDTOKEN" | cut -d. -f2 | base64 -d 2>/dev/null | jq .
 
       - name: Configure AWS credentials
-          uses: aws-actions/configure-aws-credentials@v6
-          with:
-            role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
-            aws-region: ${{ vars.AWS_REGION }}
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Find running EC2 instances
         id: instances
