@@ -291,7 +291,7 @@ jobs:
             HEALTH_OK=false
 
             for attempt in {1..30}; do
-              if curl --fail --silent --show-error "http://127.0.0.1:\${APP_PORT}/" > /dev/null; then
+              if curl --fail --silent --show-error "http://127.0.0.1:${APP_PORT}${APP_BASE_PATH}" > /dev/null; then
                 HEALTH_OK=true
                 break
               fi
